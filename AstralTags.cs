@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Player = Astrum.AstralCore.Types.Player;
 
-[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "0.1.0", downloadLink: "github.com/Astrum-Project/AstralTags")]
+[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "0.1.1", downloadLink: "github.com/Astrum-Project/AstralTags")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkMagenta)]
 
@@ -17,7 +17,7 @@ namespace Astrum
         public static List<WeakReference<AstralPlayerTag>> playerTags = new List<WeakReference<AstralPlayerTag>>();
 
         // example tag
-        static AstralTags() => tags.Add(new AstralTag(new Func<Player, AstralTagData>(player => new AstralTagData() { enabled = player.VRCPlayerApi.isMaster, text = "Master" }), 100));
+        static AstralTags() => tags.Add(new AstralTag(new Func<Player, AstralTagData>(player => new AstralTagData() { enabled = player.VRCPlayerApi.isMaster, text = "Master", textColor = Color.white, backgroundColor = Color.black }), 100));
 
         public override void OnApplicationStart()
         {

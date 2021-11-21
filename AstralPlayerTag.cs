@@ -82,7 +82,7 @@ namespace Astrum
                         continue;
                     }
 
-                    UnityEngine.Object.Destroy(child.gameObject);
+                    Destroy(child.gameObject);
                 }
 
                 return textGO;
