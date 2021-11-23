@@ -1,10 +1,11 @@
 ﻿using MelonLoader;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Player = Astrum.AstralCore.Types.Player;
 
-[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "0.1.1", downloadLink: "github.com/Astrum-Project/AstralTags")]
+[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "0.1.2", downloadLink: "github.com/Astrum-Project/AstralTags")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkMagenta)]
 
@@ -26,7 +27,11 @@ namespace Astrum
         }
 
         private static void OnPlayerJoined(Player player) => player.Inner.gameObject.AddComponent<AstralPlayerTag>();
-        private static void OnPlayerLeft(Player player) => CalculateAll();
+        private static void OnPlayerLeft(Player player)
+        {
+            playerTags = playerTags.Where(x => x.TryGetTarget(out AstralPlayerTag target) && target != null).ToList();
+            CalculateAll();
+        }
 
         public static void CalculateAll()
         {

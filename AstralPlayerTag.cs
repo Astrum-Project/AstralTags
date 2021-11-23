@@ -40,6 +40,9 @@ namespace Astrum
                 int s = 0;
                 for (int i = 0; i < tags.Count; i++)
                 {
+                    if (contents is null)
+                        return;
+
                     AstralTagData res = tags[i].evaluator(player);
 
                     Transform tag = contents.Find($"AstralTag{i}/Trust Text");
