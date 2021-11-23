@@ -53,7 +53,7 @@ namespace Astrum
                     tag.parent.gameObject.active = res.enabled;
 
                     if (!res.enabled)
-                        return;
+                        continue;
 
                     s++;
 
