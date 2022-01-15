@@ -10,6 +10,7 @@
     <RootNamespace>Astrum</RootNamespace>
     <AssemblyName>AstralTags</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>preview</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -68,9 +69,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AstralPlayerTag.cs" />
-    <Compile Include="AstralTag.cs" />
     <Compile Include="AstralTags.cs" />
+    <Compile Include="BuiltInTags.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="PlayerData.cs" />
+    <Compile Include="Tag.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

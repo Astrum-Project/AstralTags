@@ -1,11 +1,11 @@
-﻿using MelonLoader;
+﻿using Astrum.AstralCore.Types;
+using MelonLoader;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using UnityEngine;
-using Player = Astrum.AstralCore.Types.Player;
+using VRC.SDKBase;
 
-[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "0.2.0", downloadLink: "github.com/Astrum-Project/AstralTags")]
+[assembly: MelonInfo(typeof(Astrum.AstralTags), "AstralTags", "1.0.0", downloadLink: "github.com/Astrum-Project/AstralTags")]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkMagenta)]
 
@@ -13,71 +13,49 @@ namespace Astrum
 {
     public partial class AstralTags : MelonMod
     {
-        public static bool hasIntegration;
-        public static bool moderatorTag = true;
-        public static bool masterTag = true;
-        public static List<AstralTag> tags = new List<AstralTag>();
-        public static List<WeakReference<AstralPlayerTag>> playerTags = new List<WeakReference<AstralPlayerTag>>();
-
-        // example tags
-        static AstralTags()
-        {
-            new AstralTag(new Func<Player, AstralTagData>(
-                player => new AstralTagData()
-                {
-                    enabled = moderatorTag && player.APIUser.hasModerationPowers,
-                    text = "Moderator",
-                    textColor = Color.red,
-                    backgroundColor = Color.black
-                }), 200
-            );
-
-            new AstralTag(new Func<Player, AstralTagData>(
-                player => new AstralTagData()
-                {
-                    enabled = masterTag && player.VRCPlayerApi.isMaster,
-                    text = "Master",
-                    textColor = Color.white,
-                    backgroundColor = Color.black
-                }), 100
-            );
-        }
+        private static readonly MethodInfo m_GetComponent = null;
 
         public override void OnApplicationStart()
         {
-            AstralCore.Events.OnPlayerJoined += OnPlayerJoined;
-            AstralCore.Events.OnPlayerLeft += OnPlayerLeft;
+            typeof(MonoBehaviour).GetMethod(nameof(MonoBehaviour.GetComponent), new Type[0] { }).MakeGenericMethod(Player.Type);
 
-            MelonPreferences_Category category = MelonPreferences.CreateCategory("Astrum-AstralTags", "Astral Tags");
-            category.CreateEntry("moderatorTag", true, "Moderator Tag");
-            category.CreateEntry("masterTag", true, "Master Tag");
+            AstralCore.Events.OnPlayerJoined += player => SetupPlayer(player);
 
-            OnPreferencesLoaded();
+            BuiltInTags.Initialize();
         }
 
-        public override void OnPreferencesSaved() => OnPreferencesLoaded();
-        public override void OnPreferencesLoaded()
+        public override void OnSceneWasLoaded(int index, string _)
         {
-            MelonPreferences_Category category = MelonPreferences.GetCategory("Astrum-AstralTags");
-            moderatorTag = category.GetEntry<bool>("moderatorTag").Value;
-            masterTag = category.GetEntry<bool>("masterTag").Value;
+            if (index != -1) return;
+
+            MelonCoroutines.Start(WaitForLocalLoad());
         }
 
-        private static void OnPlayerJoined(Player player) => player.Inner.gameObject.AddComponent<AstralPlayerTag>();
-        private static void OnPlayerLeft(Player player)
+        private static System.Collections.IEnumerator WaitForLocalLoad()
         {
-            playerTags = playerTags.Where(x => x.TryGetTarget(out AstralPlayerTag target) && target != null).ToList();
-            CalculateAll();
+            while (Networking.LocalPlayer is null)
+                yield return null;
+
+            foreach (VRCPlayerApi player in VRCPlayerApi.AllPlayers)
+                SetupPlayer(new Player((MonoBehaviour)m_GetComponent.Invoke(null, new object[1] { player })));
         }
 
-        public static void CalculateAll()
+        private static void SetupPlayer(Player player)
         {
-            for (int i = playerTags.Count - 1; i >= 0; i--)
+            PlayerData data = player.Inner.gameObject.AddComponent<PlayerData>();
+            data.player = player;
+            data.Setup();
+
+            Tag.OnTagRegistered += tag =>
             {
-                if (playerTags[i].TryGetTarget(out AstralPlayerTag tag))
-                    tag.CalculateTags();
-                else playerTags.RemoveAt(i);
-            }
+                data.Create(tag);
+                data.RecalculatePositions();
+            };
+
+            foreach (Tag tag in Tag.tags)
+                data.Create(tag);
+
+            data.RecalculatePositions();
         }
     }
 }
