@@ -46,16 +46,10 @@ namespace Astrum
             data.player = player;
             data.Setup();
 
-            Tag.OnTagRegistered += tag =>
-            {
-                data.Create(tag);
-                data.RecalculatePositions();
-            };
+            Tag.OnTagRegistered += tag => data.Create(tag);
 
             foreach (Tag tag in Tag.tags)
                 data.Create(tag);
-
-            data.RecalculatePositions();
         }
     }
 }

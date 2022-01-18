@@ -1,6 +1,4 @@
-﻿using Astrum.AstralCore.Types;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Astrum
 {

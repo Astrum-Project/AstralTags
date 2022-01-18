@@ -27,10 +27,11 @@ namespace Astrum
 
             TagInstance inst = new(data, tag, transform);
 
-            inst.Calculate();
-
             data.tags.Add(inst);
             tag.instances.Add(inst);
+
+            inst.Calculate();
+            data.RecalculatePositions();
         }
 
         public static void RecalculatePositions(this PlayerData data)
